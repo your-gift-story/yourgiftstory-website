@@ -1,0 +1,467 @@
+<div class="loading-overlay" id="loadingOverlay" style="background:var(--teal);flex-direction:column;gap:0">
+  <div style="text-align:center;animation:adminFadeIn 0.6s ease both">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:400;color:#FAF6EF;letter-spacing:0.02em;margin-bottom:6px">Your Gift Story</div>
+    <div style="font-size:11px;color:var(--gold);letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-bottom:2.5rem">Beyond Just a Gift</div>
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:1.5rem">
+      <div class="loader-dot" style="animation-delay:0s"></div>
+      <div class="loader-dot" style="animation-delay:0.18s"></div>
+      <div class="loader-dot" style="animation-delay:0.36s"></div>
+    </div>
+    <div style="font-size:12px;color:rgba(250,246,239,0.4);font-family:'DM Sans',sans-serif" id="loaderText">Loading your dashboard…</div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-logo">
+    <div class="login-logo-main">Your Gift Story</div>
+    <div class="login-logo-tag">Admin Panel</div>
+    <div class="login-logo-badge">Secured by Supabase Auth</div>
+  </div>
+  <div class="login-box">
+    <div>
+      <label class="login-label">Username</label>
+      <input class="login-input" type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+    <div>
+      <label class="login-label">Password</label>
+      <input class="login-input" type="password" id="loginPass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-loading" id="loginLoading">Signing in…</div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-main">Your Gift Story</div>
+      <div class="sidebar-logo-tag">Beyond Just a Gift</div>
+      <div class="sidebar-logo-badge">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" data-panel="dashboard" onclick="showPanel('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" data-panel="orders" onclick="showPanel('orders',this)"><span class="nav-icon">📦</span> Orders</div>
+      <div class="nav-item" data-panel="products" onclick="showPanel('products',this)"><span class="nav-icon">🎁</span> Products</div>
+      <div class="nav-item" data-panel="categories" onclick="showPanel('categories',this)"><span class="nav-icon">🗂️</span> Categories</div>
+      <div class="nav-item" data-panel="testimonials" onclick="showPanel('testimonials',this)"><span class="nav-icon">💬</span> Testimonials</div>
+      <div class="nav-section-label">Settings</div>
+      <div class="nav-item" data-panel="settings" onclick="showPanel('settings',this)"><span class="nav-icon">⚙️</span> Site Settings</div>
+      <div class="nav-item" data-panel="optimise" onclick="showPanel('optimise',this)"><span class="nav-icon">🗜️</span> Optimise Images</div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="supabase-status"><div class="status-dot"></div><span>Supabase connected</span></div>
+      <div class="sidebar-user" id="sidebarUser"></div>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn-sm btn-outline" onclick="window.open('https://your-gift-story-website.vercel.app','_blank')">View Website ↗</button>
+      <button class="btn-sm btn-primary" onclick="openProductModal()">+ Add Product</button>
+      <div class="topbar-user" onclick="doLogout()"><div class="topbar-avatar">A</div><span id="topbarUser">Admin</span></div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Products</div><div class="stat-value" id="stat-total"><em>—</em></div><div class="stat-sub">across all categories</div></div>
+        <div class="stat-card"><div class="stat-label">Active Products</div><div class="stat-value" id="stat-active"><em>—</em></div><div class="stat-sub">visible on site</div></div>
+        <div class="stat-card"><div class="stat-label">Bestsellers</div><div class="stat-value" id="stat-best"><em>—</em></div><div class="stat-sub">featured on homepage</div></div>
+        <div class="stat-card"><div class="stat-label">Categories</div><div class="stat-value" id="stat-cats"><em>—</em></div><div class="stat-sub">product categories</div></div>
+      </div>
+      <div class="quick-grid">
+        <div class="quick-card">
+          <div class="quick-title">Recent Products <button class="btn-sm btn-primary" style="padding:4px 12px;font-size:11px" onclick="showPanel('products',document.querySelector('[data-panel=products]'))">View all</button></div>
+          <div class="quick-list" id="recentList"><div style="text-align:center;padding:2rem;color:var(--gray);font-size:13px">Loading…</div></div>
+        </div>
+        <div class="quick-card">
+          <div class="quick-title">Bestsellers on Homepage</div>
+          <div class="quick-list" id="bestList"><div style="text-align:center;padding:2rem;color:var(--gray);font-size:13px">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="panel" id="panel-products">
+      <div class="products-toolbar">
+        <input class="search-box" type="text" placeholder="Search products…" oninput="renderProducts()">
+        <select class="filter-select" id="catFilter" onchange="renderProducts()"><option value="">All Categories</option></select>
+        <select class="filter-select" id="statusFilter" onchange="renderProducts()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="hidden">Hidden</option>
+          <option value="bestseller">Bestseller</option>
+        </select>
+        <button class="btn-sm btn-primary" onclick="openProductModal()">+ Add Product</button>
+      </div>
+      <div class="products-table">
+        <div class="table-header"><div>Photo</div><div>Product</div><div>Price</div><div>Category</div><div>Bestseller</div><div>Status</div><div>Actions</div></div>
+        <div id="productTableBody"><div class="empty-state"><div class="spinner" style="margin:0 auto 1rem"></div><div>Loading products…</div></div></div>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="panel" id="panel-categories">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:24px;font-weight:400;color:var(--teal)">Categories</h2>
+          <p style="font-size:13px;color:var(--gray);margin-top:4px">Manage categories — they auto-appear in the shop sidebar and scrolling marquee.</p>
+        </div>
+        <button class="btn-sm btn-primary" onclick="addCategory()">+ Add Category</button>
+      </div>
+      <div class="categories-grid-admin" id="catAdminGrid"><div class="empty-state"><div class="spinner" style="margin:0 auto 1rem"></div><div>Loading…</div></div></div>
+    </div>
+
+
+    <!-- TESTIMONIALS -->
+    <div class="panel" id="panel-testimonials">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:24px;font-weight:400;color:var(--teal)">Testimonials</h2>
+          <p style="font-size:13px;color:var(--gray);margin-top:4px">Customer reviews shown in the rotating spotlight on your homepage.</p>
+        </div>
+        <button class="btn-sm btn-primary" onclick="openTestiModal()">+ Add Review</button>
+      </div>
+      <div style="background:var(--white);border-radius:16px;border:1px solid var(--border);overflow:hidden">
+        <div style="display:grid;grid-template-columns:1fr 120px 80px 100px;gap:1rem;padding:.85rem 1.25rem;background:#f9f7f4;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--gray);letter-spacing:.08em;text-transform:uppercase">
+          <div>Review</div><div>Customer</div><div>Rating</div><div>Actions</div>
+        </div>
+        <div id="testiTableBody">
+          <div class="empty-state"><div class="empty-icon">💬</div><div>No testimonials yet.<br>Add your first customer review!</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="panel" id="panel-orders">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:24px;font-weight:400;color:var(--teal)">Orders</h2>
+          <p style="font-size:13px;color:var(--gray);margin-top:4px">Auto-saved from checkout + manually entered WhatsApp orders.</p>
+        </div>
+        <button class="btn-sm btn-primary" onclick="openManualOrderModal()">+ Add Manual Order</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="orders-toolbar">
+        <input class="search-box" type="text" id="orderSearch" placeholder="Search by name, phone or order ID…" oninput="renderOrders()" style="max-width:240px">
+        <select class="filter-select" id="orderFYFilter" onchange="renderOrders()"></select>
+        <select class="filter-select" id="orderStatusFilter" onchange="renderOrders()">
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <button class="btn-sm btn-outline" onclick="loadOrders()">↻ Refresh</button>
+      </div>
+
+      <div class="order-table">
+        <div class="order-table-header">
+          <div>Order ID</div><div>Customer</div><div>Items</div><div>Date</div><div>Subtotal</div><div>Status</div>
+        </div>
+        <div id="orderTableBody">
+          <div class="empty-state"><div class="spinner" style="margin:0 auto 1rem"></div><div>Loading orders…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTIMISE IMAGES -->
+    <div class="panel" id="panel-optimise">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:24px;font-weight:400;color:var(--teal)">Optimise Images</h2>
+          <p style="font-size:13px;color:var(--gray);margin-top:4px">Scans all product photos, compresses them and renames them with SEO-friendly filenames.</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm btn-outline" id="optScanBtn" onclick="optScan()">Scan Images</button>
+          <button class="btn-sm btn-primary" id="optRunBtn" style="display:none" onclick="optRun()">▶ Run Optimiser</button>
+          <button class="btn-sm btn-danger" id="optStopBtn" style="display:none" onclick="optStop()">■ Stop</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem">
+        <div class="stat-card"><div class="stat-label">Total Images</div><div class="stat-value" id="optTotal">0</div></div>
+        <div class="stat-card"><div class="stat-label">Processed</div><div class="stat-value" id="optDone">0</div><div class="stat-sub"><span id="optFailed">0</span> failed</div></div>
+        <div class="stat-card"><div class="stat-label">Space Saved</div><div class="stat-value" id="optSaved" style="font-size:24px">0 KB</div></div>
+      </div>
+
+      <div style="font-size:13px;color:var(--char);margin-bottom:.75rem" id="optStatus">Click "Scan Images" to find product photos.</div>
+
+      <div class="upload-progress" id="optProgressWrap" style="display:none;margin-bottom:1rem"><div class="upload-progress-bar" id="optProgressBar" style="width:0%"></div></div>
+
+      <div id="optListWrap" style="display:none;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1rem">
+        <div id="optList" style="display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div style="background:var(--white);border-radius:20px;border:1px solid var(--border);padding:2rem;max-width:640px">
+        <h2 style="font-family:var(--font-display);font-size:28px;font-weight:400;color:var(--teal);margin-bottom:.75rem">Site Settings</h2>
+
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">WhatsApp Number</label><input class="form-input" id="waNumber" placeholder="+91 98765 43210" value="+919876543210"></div>
+          <div class="form-group"><label class="form-label">Shop Email</label><input class="form-input" id="shopEmail" value="hello@yourgiftstory.in"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Shop Name</label><input class="form-input" id="shopName" value="Your Gift Story"></div>
+          <div class="form-group"><label class="form-label">Tagline</label><input class="form-input" id="shopTagline" value="Beyond Just a Gift"></div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="shopLocation" value="Coimbatore, Tamil Nadu, India"></div>
+        </div>
+        <button class="btn-sm btn-primary" style="padding:10px 28px" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add New Product</div>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section-title">Basic Details</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Product Name *</label><input class="form-input" id="f-name" placeholder="e.g. Floral Resin Keychain"></div>
+        <div class="form-group"><label class="form-label">Price (₹) *</label><input class="form-input" id="f-price" type="number" placeholder="349"></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Category *</label><select class="form-select" id="f-category"><option value="">Select category</option></select></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f-desc" placeholder="Short description shown on product card…"></textarea></div>
+      </div>
+
+      <div class="form-section-title">Photos</div>
+      <div class="photo-upload-area" id="uploadArea">
+        <input type="file" accept="image/*" multiple id="photoFileInput" onchange="handlePhotoSelect(event)">
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-text"><strong>Click to upload</strong> or drag & drop<br><span style="font-size:11px">JPG, PNG, WEBP · Auto-compressed &amp; uploaded to Supabase</span></div>
+      </div>
+      <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
+      <div class="photo-previews" id="photoPreviews"></div>
+
+      <div class="form-section-title">Customisation Options</div>
+
+      <!-- Saved groups list -->
+      <div id="optionGroupsList" style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem"></div>
+
+      <!-- Step-by-step builder -->
+      <div id="optGroupBuilder" style="border:1.5px solid var(--teal);border-radius:16px;overflow:hidden;background:var(--white)">
+
+        <!-- STEP 1: Label + Pricing -->
+        <div style="background:var(--teal);padding:.6rem 1rem;display:flex;align-items:center;gap:8px">
+          <span style="background:var(--gold);color:var(--char);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+          <span style="font-size:12px;font-weight:600;color:var(--cream);letter-spacing:.04em">Set Label &amp; Pricing</span>
+        </div>
+        <div style="padding:.85rem 1rem;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-end">
+          <div style="flex:1">
+            <label class="form-label" style="margin-bottom:5px;display:block">Group Label *</label>
+            <input class="form-input" id="f-opt-label" placeholder="e.g. Size, Colour, Frame Size" style="font-size:13px">
+          </div>
+          <div style="width:160px">
+            <label class="form-label" style="margin-bottom:5px;display:block">Pricing</label>
+            <select class="form-select" id="f-price-type" style="font-size:12px" onchange="togglePriceCol()">
+              <option value="none">Same price for all</option>
+              <option value="per_variant">Each variant has own price</option>
+              <option value="addon">Add-on price (+₹)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- STEP 2: Add Variants -->
+        <div style="background:var(--teal);padding:.6rem 1rem;display:flex;align-items:center;gap:8px">
+          <span style="background:var(--gold);color:var(--char);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span>
+          <span style="font-size:12px;font-weight:600;color:var(--cream);letter-spacing:.04em">Add Variants One by One</span>
+        </div>
+        <div style="padding:.75rem 1rem;border-bottom:1px solid var(--border)">
+          <!-- Variant rows list -->
+          <div id="variantRows" style="display:flex;flex-direction:column;gap:4px;margin-bottom:.6rem"></div>
+          <!-- Add new variant input -->
+          <div style="display:flex;gap:6px;align-items:center;background:#f4f1ec;border-radius:10px;padding:6px 8px">
+            <input class="form-input" id="newVariantName" placeholder="Variant name (e.g. Small, Red, 4×6)" style="flex:1;font-size:12px;padding:7px 10px;background:var(--white)" onkeydown="if(event.key==='Enter'){event.preventDefault();quickAddVariant()}">
+            <input class="form-input" id="newVariantPrice" type="number" placeholder="₹" style="width:72px;font-size:12px;padding:7px 9px;display:none;background:var(--white)" onkeydown="if(event.key==='Enter'){event.preventDefault();quickAddVariant()}">
+            <button class="btn-sm btn-primary" style="padding:7px 14px;font-size:12px;white-space:nowrap;border-radius:8px" onclick="quickAddVariant()">+ Add</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Save Group -->
+        <div style="background:var(--teal);padding:.6rem 1rem;display:flex;align-items:center;gap:8px">
+          <span style="background:var(--gold);color:var(--char);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span>
+          <span style="font-size:12px;font-weight:600;color:var(--cream);letter-spacing:.04em">Save This Group</span>
+        </div>
+        <div style="padding:.75rem 1rem;display:flex;gap:8px;align-items:center">
+          <button class="btn-sm btn-primary" style="padding:8px 18px" onclick="saveOptionGroup()">✓ Save Group</button>
+          <button class="btn-sm btn-outline" style="padding:8px 14px" onclick="clearCurrentGroup()">✕ Clear</button>
+          <span style="font-size:11px;color:var(--gray);margin-left:4px">Then add another group if needed</span>
+        </div>
+      </div>
+
+      <button class="btn-sm btn-outline" style="font-size:11px;margin-top:.75rem" onclick="startNewGroup()">+ Add Another Group</button>
+
+      <div class="form-section-title">Customer Questions</div>
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:12px;color:var(--gray);margin-bottom:.75rem">Add questions the customer must answer before adding to cart — e.g. "Enter name to print", "Enter date", "Share photo link"</div>
+        <div id="questions-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:.75rem"></div>
+        <button class="btn-sm btn-outline" style="font-size:12px;padding:7px 16px" onclick="addQuestion()">+ Add Question</button>
+      </div>
+      <div class="form-section-title">Pre-Cart Notice</div>
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:12px;color:var(--gray);margin-bottom:.6rem">If set, customer must tick a checkbox to confirm they read this before adding to cart</div>
+        <textarea class="form-input" id="f-notice" rows="3" placeholder="e.g. Please note: this product requires a clear photo. Ensure good lighting before submitting." style="resize:vertical;font-size:13px;font-family:inherit"></textarea>
+      </div>
+
+      <div class="form-section-title">Visibility</div>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="form-toggle-row">
+          <div><div class="form-toggle-label">Mark as Bestseller</div><div class="form-toggle-sub">Shows in "Most Loved" section on homepage</div></div>
+          <label class="toggle"><input type="checkbox" id="f-bestseller"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="form-toggle-row">
+          <div><div class="form-toggle-label">Active (visible on site)</div><div class="form-toggle-sub">Hide to remove from shop without deleting</div></div>
+          <label class="toggle"><input type="checkbox" id="f-active" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-outline" onclick="closeProductModal()">Cancel</button>
+      <button class="btn-sm btn-primary" id="saveBtn" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <div class="modal-title" id="orderDetailTitle">Order Details</div>
+      <button class="modal-close" onclick="closeOrderDetail()">✕</button>
+    </div>
+    <div class="modal-body" id="orderDetailBody"></div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-danger" onclick="deleteCurrentOrder()">Delete Order</button>
+      <button class="btn-sm btn-outline" onclick="closeOrderDetail()">Close</button>
+      <button class="btn-sm btn-primary" onclick="saveOrderStatus()">Save Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANUAL ORDER MODAL -->
+<div class="modal-overlay" id="manualOrderModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title">Add Manual Order</div>
+      <button class="modal-close" onclick="closeManualOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section-title">Customer Details</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Customer Name *</label><input class="form-input" id="mo-name" placeholder="e.g. Priya S."></div>
+        <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" id="mo-phone" placeholder="e.g. +91 98765 43210"></div>
+      </div>
+      <div class="form-section-title">Items Ordered</div>
+      <div id="mo-items-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:.75rem"></div>
+      <button class="btn-sm btn-outline" style="font-size:11px" onclick="addManualItem()">+ Add Item</button>
+      <div class="form-section-title">Order Info</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="mo-status">
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="mo-notes" placeholder="Any notes…"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-outline" onclick="closeManualOrderModal()">Cancel</button>
+      <button class="btn-sm btn-primary" onclick="saveManualOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title" id="catModalTitle">Add Category</div>
+      <button class="modal-close" onclick="closeCatModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:1rem">
+        <label class="form-label">Category Name *</label>
+        <input class="form-input" id="cat-name" placeholder="e.g. Resin Art, Gift Hampers…" onkeydown="if(event.key==='Enter')saveCat()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon (Emoji)</label>
+        <input class="form-input" id="cat-icon" placeholder="e.g. 🫙 🎨 🧵 🖼️ 🎀 🎂" style="font-size:20px;letter-spacing:4px" maxlength="4">
+        <p style="font-size:11px;color:var(--gray);margin-top:6px">Type or paste one emoji. It shows in the marquee and category grid on the homepage.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-outline" onclick="closeCatModal()">Cancel</button>
+      <button class="btn-sm btn-primary" onclick="saveCat()">Save Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIAL MODAL -->
+<div class="modal-overlay" id="testiModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title" id="testiModalTitle">Add Review</div>
+      <button class="modal-close" onclick="closeTestiModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section-title">Customer Details</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Customer Name *</label><input class="form-input" id="t-name" placeholder="e.g. Sneha R."></div>
+        <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="t-location" placeholder="e.g. Coimbatore"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Occasion / Gift Type</label><input class="form-input" id="t-occasion" placeholder="e.g. Birthday gift"></div>
+        <div class="form-group">
+          <label class="form-label">Star Rating *</label>
+          <select class="form-select" id="t-rating">
+            <option value="5">★★★★★ — 5 Stars</option>
+            <option value="4">★★★★☆ — 4 Stars</option>
+            <option value="3">★★★☆☆ — 3 Stars</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-section-title">Review Text</div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Review *</label><textarea class="form-textarea" id="t-text" placeholder="What did they say about your gift?" style="min-height:100px"></textarea></div>
+      </div>
+      <div class="form-section-title">Visibility</div>
+      <div class="form-toggle-row">
+        <div><div class="form-toggle-label">Show on website</div><div class="form-toggle-sub">Uncheck to hide without deleting</div></div>
+        <label class="toggle"><input type="checkbox" id="t-active" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-outline" onclick="closeTestiModal()">Cancel</button>
+      <button class="btn-sm btn-primary" onclick="saveTesti()">Save Review</button>
+    </div>
+  </div>
+</div>

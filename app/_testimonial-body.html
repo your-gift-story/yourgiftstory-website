@@ -1,0 +1,96 @@
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">
+      <span class="nav-logo-main">Your Gift Story</span>
+      <span class="nav-logo-tag">Beyond Just a Gift</span>
+    </a>
+    <a class="nav-back" href="/">← Back to Shop</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="eyebrow">Customer Reviews</div>
+    <h1 class="page-title">Share Your <em>Gift Story</em></h1>
+    <p class="page-sub">We pour our heart into every gift we make. Tell us about the moment it created — your words inspire us and help others find their perfect story.</p>
+  </div>
+
+  <!-- FORM CARD -->
+  <div class="form-card" id="formCard">
+    <div class="form-grid">
+
+      <!-- Name -->
+      <div class="form-group">
+        <label for="f-name">Your Name <span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="e.g. Priya S." maxlength="60">
+        <span class="field-error" id="err-name">Please enter your name.</span>
+      </div>
+
+      <!-- Location -->
+      <div class="form-group">
+        <label for="f-location">City / Area</label>
+        <input type="text" id="f-location" placeholder="e.g. Chennai, Tamil Nadu" maxlength="80">
+      </div>
+
+      <!-- Occasion -->
+      <div class="form-group full">
+        <label for="f-occasion">What was the occasion?</label>
+        <input type="text" id="f-occasion" placeholder="e.g. Birthday, Wedding, Baby Shower…" maxlength="100">
+      </div>
+
+      <!-- Star Rating -->
+      <div class="form-group full star-rating-group">
+        <label>Your Rating <span class="req">*</span></label>
+        <div class="stars-row" id="starsRow" role="group" aria-label="Star rating">
+          <button class="star-btn active" type="button" data-val="1" title="1 star">★</button>
+          <button class="star-btn active" type="button" data-val="2" title="2 stars">★</button>
+          <button class="star-btn active" type="button" data-val="3" title="3 stars">★</button>
+          <button class="star-btn active" type="button" data-val="4" title="4 stars">★</button>
+          <button class="star-btn active" type="button" data-val="5" title="5 stars">★</button>
+          <span class="star-label" id="starLabel">5 stars — Excellent!</span>
+        </div>
+        <span class="field-error" id="err-rating">Please select a rating.</span>
+      </div>
+
+      <!-- Review Text -->
+      <div class="form-group full">
+        <label for="f-review">Your Review <span class="req">*</span></label>
+        <textarea id="f-review" placeholder="Tell us about your experience — the gift, the reaction, the moment it created… every detail is welcome 💛" maxlength="600"></textarea>
+        <div class="char-row"><span class="char-count" id="charCount">0 / 600</span></div>
+        <span class="field-error" id="err-review">Please share your experience (at least 20 characters).</span>
+      </div>
+
+    </div>
+
+    <div class="submit-row">
+      <button class="btn-submit" id="submitBtn" type="button" onclick="submitReview()">
+        <span id="btnText">Submit My Review</span>
+        <div class="spinner" id="btnSpinner"></div>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">🎁</div>
+    <h2 class="success-title">Thank you, <em id="successName">friend</em>!</h2>
+    <div class="success-divider"></div>
+    <p class="success-msg">Thanks for sharing your feedback — it truly means the world to us. 💛</p>
+    <button class="btn-back" onclick="window.location.href='/'">Back to Shop</button>
+  </div>
+
+  <!-- TRUST STRIP -->
+  <div class="trust-strip" id="trustStrip">
+    <div class="trust-item"><span class="trust-icon">🔒</span><span class="trust-label">Private & Safe</span></div>
+    <div class="trust-item"><span class="trust-icon">💌</span><span class="trust-label">Made with Love</span></div>
+  </div>
+
+</div>
