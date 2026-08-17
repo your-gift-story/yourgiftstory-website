@@ -1,7 +1,10 @@
 import Script from "next/script";
 
 export const metadata = {
-  metadataBase: new URL("https://your-gift-story-website.vercel.app"),
+  metadataBase: new URL("https://www.yourgiftstory.in"),
+  verification: {
+    google: "IP9ETeM7FINj1ju4X-nwBqOyGYrTQ7XBGlZbu36e1iM",
+  },
 };
 
 export default function RootLayout({ children }) {
