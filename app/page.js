@@ -13,7 +13,7 @@ const bodyHtml = fs.readFileSync(
   "utf8"
 );
 
-const SITE_URL = "https://your-gift-story-website.vercel.app";
+const SITE_URL = "https://www.yourgiftstory.in";
 
 export const viewport = {
   width: "device-width",
